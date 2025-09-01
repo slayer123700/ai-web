@@ -11,16 +11,17 @@ from fastapi.responses import StreamingResponse
 
 app = FastAPI()
 
-# Allow React frontend
+# Allow frontend (React) to connect
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173", "https://your-frontend.onrender.com"],  # Update with your frontend URL
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 🌟 Replace with your NEW OpenAI API key
-OPENAI_API_KEY = "sk-your-new-key-here"  # ← Paste your new key here
+# 🌟 Replace with your OpenAI API key (after revoking the old one!)
+OPENAI_API_KEY = "sk-your-new-openai-key-here"
 MODEL = "gpt-3.5-turbo"
 
 class ChatRequest(BaseModel):
@@ -56,10 +57,11 @@ async def chat(request: ChatRequest):
                     return
 
                 async for line in response.aiter_lines():
-                    if line.startswith("data:"):
+                    if line.strip() and line.startswith(""):
                         yield f"{line}\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
+
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
@@ -82,6 +84,7 @@ async def upload_file(file: UploadFile = File(...)):
         else:
             raise HTTPException(status_code=400, detail="Unsupported file type")
 
-        return {"text": content[:5000]}  # Return first 5000 chars
+        return {"text": content[:5000]}  # Limit to 5000 characters
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
