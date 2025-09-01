@@ -21,7 +21,7 @@ app.add_middleware(
 )
 
 # 🌟 Replace with your OpenAI API key (after revoking the old one!)
-OPENAI_API_KEY = "sk-your-new-openai-key-here"
+OPENAI_API_KEY = "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"
 MODEL = "gpt-3.5-turbo"
 
 class ChatRequest(BaseModel):
